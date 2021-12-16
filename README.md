@@ -1,4 +1,6 @@
-# scale-out-cmd-ray
+# Ray Commands
+
+This repository provides a CLI tool to run commands scale-out in IBM Cloud using Ray in order to process large volumes of data stored in cloud.
 
 ## Setup Ray Cluster
 

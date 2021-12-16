@@ -5,6 +5,7 @@ import ray
 import time
 import sys
 import humanfriendly
+import pandas as pd
 
 url_file = open('final_commands.txt','r')
 
@@ -35,16 +36,21 @@ if __name__ == '__main__':
         refobj = do_it.remote(line.strip(), sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
         all_ref_objs.append(refobj)
 
+    total_volume = humanfriendly.parse_size(pd.read_csv("object_2_size.csv")["size"].sum())
+
     start_seconds = time.time()
     result_ids = all_ref_objs
     start_time = time.time()
+    transferred_volume=0
     while len(result_ids) > 0:
         done_ids, result_ids = ray.wait(result_ids)
         for done_id in done_ids:
-            print("\033[96m(Main loop)\033[0m Transferred: {}".format(humanfriendly.parse_size(ray.get(done_id))))
+            transferred_volume+=humanfriendly.parse_size(ray.get(done_id))
+        print("\033[96m(Main loop)\033[0m Transferred: {} / {}".format(humanfriendly.format_size(transferred_volume, binary=True),
+                                                                       humanfriendly.format_size(total_volume, binary=True)))
         now_seconds = time.time()
         duration=now_seconds-start_seconds
-        print("\033[96m(Main loop)\033[0m Tasks left: {}/{}".format(len(result_ids), len(all_ref_objs)))
+        print("\033[96m(Main loop)\033[0m Tasks left: {} / {}".format(len(result_ids), len(all_ref_objs)))
         print("\033[96m(Main loop)\033[0m Average tasks/second: ", ((len(all_ref_objs)-len(result_ids))*1.1)/duration)
     end_time=time.time()
 

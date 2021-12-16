@@ -21,6 +21,7 @@ sed '/upscaling_speed: /i\
 - chmod 700  /usr/local/bin/mc\
 - alias mc=/usr/local/bin/mc\
 - pip install humanfriendly\
+- pip install pandas\
 ' $1 > cluster.yaml
 
 echo "Your ray cluster yaml is now stored as 'cluster.yaml' ready to be used."

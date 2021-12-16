@@ -36,7 +36,7 @@ if __name__ == '__main__':
         refobj = do_it.remote(line.strip(), sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
         all_ref_objs.append(refobj)
 
-    total_volume = humanfriendly.parse_size(pd.read_csv("object_2_size.csv")["size"].sum())
+    total_volume = pd.read_csv("object_2_size.csv")["size"].apply(humanfriendly.parse_size).sum()
 
     start_seconds = time.time()
     result_ids = all_ref_objs
@@ -51,7 +51,8 @@ if __name__ == '__main__':
         now_seconds = time.time()
         duration=now_seconds-start_seconds
         print("\033[96m(Main loop)\033[0m Tasks left: {} / {}".format(len(result_ids), len(all_ref_objs)))
-        print("\033[96m(Main loop)\033[0m Average tasks/second: ", ((len(all_ref_objs)-len(result_ids))*1.1)/duration)
+        print("\033[96m(Main loop)\033[0m Average Tasks/s: ", ((len(all_ref_objs)-len(result_ids))*1.1)/duration)
+        print("\033[96m(Main loop)\033[0m Average Bytes/s: ", humanfriendly.format_size(total_volume/duration, binary=True))
     end_time=time.time()
 
     print("\033[96m(Main loop)\033[0m Total time (s): ", end_time-start_time)

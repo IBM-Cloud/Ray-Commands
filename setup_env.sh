@@ -4,3 +4,4 @@ source ray/bin/activate
 pip3 install ray
 pip3 install lithopscloud
 pip3 install gen2-connector
+pip3 install humanfriendly

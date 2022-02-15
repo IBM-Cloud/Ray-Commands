@@ -105,19 +105,22 @@ echo "$object_listing" \
     | while read -r col1 col2; do echo $col2 $col1; done \
     | tr " " "," \
     >> object_2_size.csv
+batch_size=4
 echo "$object_listing" \
     | tr -s " " \
     | cut -d " " -f 5 \
+    | awk -v bucket=$INPUT_BUCKET -v prefix=$INPUT_PREFIX '{print "source/"bucket"/"prefix"/"$1}' \
+    | xargs -n$batch_size \
     | while read line; do \
-        echo "mc cp source/$INPUT_BUCKET/$INPUT_PREFIX/$line target/$OUTPUT_BUCKET/$OUTPUT_PREFIX/$line" \
+        echo "mc cp $line target/$OUTPUT_BUCKET/$OUTPUT_PREFIX/" \
         >>final_commands.txt; done
-number_of_objects=`cat final_commands.txt | wc -l`
-echo "Prepared $number_of_objects copy tasks."
+number_of_objects=`cat object_2_size.csv | wc -l | xargs`
+number_of_tasks=`cat final_commands.txt | wc -l | xargs`
+echo "Prepared $number_of_tasks copy tasks for $number_of_objects objects using batch size of $batch_size."
 
 echo "Uploading copy tasks to ray cluster header at $ray_head_ip ..."
-ray rsync-up cluster.yaml final_commands.txt /root/final_commands.txt
-ray rsync-up cluster.yaml object_2_size.csv /root/object_2_size.csv
-echo "Done"
+ray rsync-up cluster.yaml final_commands.txt /root/final_commands.txt 2> /dev/null
+ray rsync-up cluster.yaml object_2_size.csv /root/object_2_size.csv 2> /dev/null
 
 ray submit cluster.yaml cli_command_execution.py -- \
 $INPUT_ENDPOINT \

@@ -92,6 +92,7 @@ if __name__ == '__main__':
         execution_progress(transferred_volume, total_volume, len(result_ids), len(all_ref_objs), duration)
 
     total_time=time.time()-start_seconds
+    print("")
     print("\033[96m(Main loop)\033[0m Total time (s): ", total_time)
     print("\033[96m(Main loop)\033[0m Total average Bytes/s: ", humanfriendly.format_size(total_volume/total_time, binary=True))
 
